@@ -11,13 +11,11 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: #f3f4f6; color: #111827; display: flex; min-height: 100vh; }
 
-    /* Sidebar */
     .sidebar { width: 240px; background: #0f172a; color: #fff; padding: 24px; }
     .sidebar h2 { font-size: 1.4rem; margin-bottom: 30px; }
     .menu a { display: block; color: #cbd5f5; text-decoration: none; padding: 12px 10px; border-radius: 10px; margin-bottom: 6px; }
     .menu a.active, .menu a:hover { background: #1e293b; color: #fff; }
 
-    /* Main */
     .main { flex: 1; padding: 30px; }
 
     .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
@@ -46,7 +44,6 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
   <h2>HR Panel</h2>
   <div class="menu">
@@ -58,14 +55,12 @@
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
   <div class="topbar">
     <h1>Dashboard HR</h1>
     <button class="btn">+ Tambah Lowongan</button>
   </div>
 
-  <!-- KPI -->
   <div class="stats">
     <div class="card">
       <h3>Total Lowongan</h3>
@@ -85,7 +80,6 @@
     </div>
   </div>
 
-  <!-- TABLE -->
   <div class="table-card">
     <h3 style="margin-bottom:16px">Pelamar Terbaru</h3>
     <table>
@@ -103,7 +97,6 @@
   </div>
 </div>
 
-<!-- FIREBASE + SCRIPT -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -126,7 +119,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* KPI */
 async function loadKPI() {
   const jobsSnap = await getDocs(collection(db, "jobs"));
   document.getElementById("totalJobs").innerText = jobsSnap.size;
@@ -137,8 +129,8 @@ async function loadKPI() {
   let interviewCount = 0;
   let acceptedCount = 0;
 
-  applicantsSnap.forEach(doc => {
-    const a = doc.data();
+  applicantsSnap.forEach(d => {
+    const a = d.data();
     if (a.status === "new") newCount++;
     if (a.status === "interview") interviewCount++;
     if (a.status === "accepted") acceptedCount++;
@@ -149,12 +141,12 @@ async function loadKPI() {
   document.getElementById("acceptedApplicants").innerText = acceptedCount;
 }
 
-/* TABLE */
 async function loadApplicants() {
   const table = document.getElementById("applicantsTable");
-  table.innerHTML = "";
+  table.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
 
   const snap = await getDocs(collection(db, "applicants"));
+  table.innerHTML = "";
 
   for (const d of snap.docs) {
     const a = d.data();
@@ -177,8 +169,10 @@ async function loadApplicants() {
   }
 }
 
-loadKPI();
-loadApplicants();
+document.addEventListener("DOMContentLoaded", () => {
+  loadKPI();
+  loadApplicants();
+});
 </script>
 
 </body>
