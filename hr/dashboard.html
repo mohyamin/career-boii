@@ -116,6 +116,31 @@
   </div>
 
 </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
+    authDomain: "career-portal-ace63.firebaseapp.com",
+    projectId: "career-portal-ace63",
+    storageBucket: "career-portal-ace63.firebasestorage.app",
+    messagingSenderId: "226436857978",
+    appId: "1:226436857978:web:4e38e13677ae8e92a1bbc3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function loadJobs() {
+    const querySnapshot = await getDocs(collection(db, "jobs"));
+    querySnapshot.forEach((doc) => {
+      console.log(doc.id, doc.data());
+    });
+  }
+
+  loadJobs();
+</script>
 
 </body>
 </html>
