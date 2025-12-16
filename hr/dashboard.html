@@ -112,13 +112,14 @@
 <!-- SIDEBAR -->
 <div class="sidebar">
   <h2>HR Panel</h2>
-  <div class="menu">
-    <a class="active">Dashboard</a>
-    <a>Lowongan</a>
-    <a>Pelamar</a>
-    <a>Interview</a>
-    <a>Laporan</a>
-  </div>
+ <div class="menu">
+  <a href="dashboard.html" class="active">Dashboard</a>
+  <a href="jobs.html">Lowongan</a>
+  <a href="#">Pelamar</a>
+  <a href="#">Interview</a>
+  <a href="#">Laporan</a>
+</div>
+
 </div>
 
 <!-- MAIN -->
@@ -254,6 +255,16 @@ async function loadApplicants() {
 
 loadKPI();
 loadApplicants();
+</script>
+<script>
+  const links = document.querySelectorAll(".menu a");
+  const path = window.location.pathname.split("/").pop();
+
+  links.forEach(link => {
+    if (link.getAttribute("href") === path) {
+      link.classList.add("active");
+    }
+  });
 </script>
 
 </body>
