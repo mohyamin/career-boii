@@ -4,7 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard HR – Recruitment</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: #f3f4f6; color: #111827; display: flex; min-height: 100vh; }
@@ -32,18 +34,19 @@
     th { font-size: .85rem; color: #6b7280; }
     td { font-size: .9rem; }
 
-    .status { padding: 6px 12px; border-radius: 999px; font-size: .75rem; font-weight: 600; }
-    .new { background: #e0f2fe; color: #0369a1; }
-    .interview { background: #fef3c7; color: #92400e; }
-    .hired { background: #dcfce7; color: #166534; }
+    .status { padding: 6px 12px; border-radius: 999px; font-size: .75rem; font-weight: 600; text-transform: capitalize; }
+    .new { background:#e0f2fe; color:#0369a1; }
+    .interview { background:#fef3c7; color:#92400e; }
+    .accepted { background:#dcfce7; color:#166534; }
+    .rejected { background:#fee2e2; color:#991b1b; }
 
     .btn { padding: 8px 14px; border-radius: 10px; border: none; background: #2563eb; color: #fff; cursor: pointer; font-size: .8rem; }
     .btn.secondary { background: #64748b; }
-
   </style>
 </head>
 <body>
 
+<!-- SIDEBAR -->
 <div class="sidebar">
   <h2>HR Panel</h2>
   <div class="menu">
@@ -55,31 +58,34 @@
   </div>
 </div>
 
+<!-- MAIN -->
 <div class="main">
   <div class="topbar">
     <h1>Dashboard HR</h1>
     <button class="btn">+ Tambah Lowongan</button>
   </div>
 
+  <!-- KPI -->
   <div class="stats">
     <div class="card">
       <h3>Total Lowongan</h3>
-      <p>5</p>
+      <p id="totalJobs">0</p>
     </div>
     <div class="card">
       <h3>Pelamar Baru</h3>
-      <p>12</p>
+      <p id="newApplicants">0</p>
     </div>
     <div class="card">
       <h3>Interview</h3>
-      <p>4</p>
+      <p id="interviewApplicants">0</p>
     </div>
     <div class="card">
       <h3>Diterima</h3>
-      <p>2</p>
+      <p id="acceptedApplicants">0</p>
     </div>
   </div>
 
+  <!-- TABLE -->
   <div class="table-card">
     <h3 style="margin-bottom:16px">Pelamar Terbaru</h3>
     <table>
@@ -92,56 +98,88 @@
           <th>Aksi</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>Andi Saputra</td>
-          <td>Web Developer</td>
-          <td>andi@mail.com</td>
-          <td><span class="status new">New</span></td>
-          <td>
-            <button class="btn">Detail</button>
-          </td>
-        </tr>
-        <tr>
-          <td>Siti Rahma</td>
-          <td>Data Analyst</td>
-          <td>siti@mail.com</td>
-          <td><span class="status interview">Interview</span></td>
-          <td>
-            <button class="btn secondary">Detail</button>
-          </td>
-        </tr>
-      </tbody>
+      <tbody id="applicantsTable"></tbody>
     </table>
   </div>
-
 </div>
+
+<!-- FIREBASE + SCRIPT -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
-    authDomain: "career-portal-ace63.firebaseapp.com",
-    projectId: "career-portal-ace63",
-    storageBucket: "career-portal-ace63.firebasestorage.app",
-    messagingSenderId: "226436857978",
-    appId: "1:226436857978:web:4e38e13677ae8e92a1bbc3"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
+  authDomain: "career-portal-ace63.firebaseapp.com",
+  projectId: "career-portal-ace63",
+  storageBucket: "career-portal-ace63.firebasestorage.app",
+  messagingSenderId: "226436857978",
+  appId: "1:226436857978:web:4e38e13677ae8e92a1bbc3"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-  async function loadJobs() {
-    const querySnapshot = await getDocs(collection(db, "jobs"));
-    querySnapshot.forEach((doc) => {
-      console.log(doc.id, doc.data());
-    });
+/* KPI */
+async function loadKPI() {
+  const jobsSnap = await getDocs(collection(db, "jobs"));
+  document.getElementById("totalJobs").innerText = jobsSnap.size;
+
+  const applicantsSnap = await getDocs(collection(db, "applicants"));
+
+  let newCount = 0;
+  let interviewCount = 0;
+  let acceptedCount = 0;
+
+  applicantsSnap.forEach(doc => {
+    const a = doc.data();
+    if (a.status === "new") newCount++;
+    if (a.status === "interview") interviewCount++;
+    if (a.status === "accepted") acceptedCount++;
+  });
+
+  document.getElementById("newApplicants").innerText = newCount;
+  document.getElementById("interviewApplicants").innerText = interviewCount;
+  document.getElementById("acceptedApplicants").innerText = acceptedCount;
+}
+
+/* TABLE */
+async function loadApplicants() {
+  const table = document.getElementById("applicantsTable");
+  table.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "applicants"));
+
+  for (const d of snap.docs) {
+    const a = d.data();
+
+    let jobTitle = "-";
+    if (a.jobId) {
+      const jobSnap = await getDoc(doc(db, "jobs", a.jobId));
+      if (jobSnap.exists()) jobTitle = jobSnap.data().title;
+    }
+
+    table.innerHTML += `
+      <tr>
+        <td>${a.name}</td>
+        <td>${jobTitle}</td>
+        <td>${a.email}</td>
+        <td><span class="status ${a.status}">${a.status}</span></td>
+        <td><button class="btn secondary">Detail</button></td>
+      </tr>
+    `;
   }
+}
 
-  loadJobs();
+loadKPI();
+loadApplicants();
 </script>
 
 </body>
 </html>
-
