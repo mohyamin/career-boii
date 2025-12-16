@@ -1,113 +1,134 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<title>Login HR</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Login HR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
-<style>
-body {
-  background:#f3f4f6;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:100vh;
-  font-family:'Inter',sans-serif;
-}
-.card {
-  background:#fff;
-  padding:32px;
-  border-radius:16px;
-  width:100%;
-  max-width:380px;
-  box-shadow:0 20px 40px rgba(0,0,0,.1);
-}
-h2 {
-  margin-bottom:20px;
-  text-align:center;
-}
-input {
-  width:100%;
-  padding:12px;
-  margin-bottom:14px;
-  border-radius:10px;
-  border:1px solid #e5e7eb;
-}
-button {
-  width:100%;
-  padding:12px;
-  background:#2563eb;
-  border:none;
-  border-radius:10px;
-  color:#fff;
-  font-weight:600;
-  cursor:pointer;
-}
-.error {
-  color:#dc2626;
-  font-size:.85rem;
-  margin-top:10px;
-  text-align:center;
-}
-</style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background: #fff;
+      padding: 30px;
+      width: 350px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #1e4fd8;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 12px;
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="card">
-  <h2>Login HR</h2>
+  <div class="card">
+    <h2>Login HR</h2>
 
-  <input type="email" id="email" placeholder="Email HR" />
-  <input type="password" id="password" placeholder="Password" />
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
 
-  <button id="loginBtn">Login</button>
-  <div class="error" id="error"></div>
-</div>
+    <button id="loginBtn">Login</button>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <div id="error" class="error"></div>
+  </div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
-  authDomain: "career-portal-ace63.firebaseapp.com",
-  projectId: "career-portal-ace63"
-};
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    // 🔥 GANTI DENGAN FIREBASE CONFIG PUNYAMU
+    const firebaseConfig = {
+      apiKey: "API_KEY_KAMU",
+      authDomain: "PROJECT_ID.firebaseapp.com",
+      projectId: "PROJECT_ID",
+      storageBucket: "PROJECT_ID.appspot.com",
+      messagingSenderId: "SENDER_ID",
+      appId: "APP_ID"
+    };
 
-document.getElementById("loginBtn").onclick = async () => {
-  const emailInput = document.getElementById("email").value;
-  const passwordInput = document.getElementById("password").value;
-  const error = document.getElementById("error");
-  error.innerText = "";
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  try {
-    const cred = await signInWithEmailAndPassword(
-      auth,
-      emailInput,
-      passwordInput
-    );
+    const loginBtn = document.getElementById("loginBtn");
+    const error = document.getElementById("error");
 
-    const userSnap = await getDoc(doc(db, "users", cred.user.uid));
+    loginBtn.onclick = async () => {
+      error.innerText = "";
 
-    if (!userSnap.exists() || userSnap.data().role !== "hr") {
-      error.innerText = "Akses ditolak";
-      return;
-    }
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-    window.location.href = "dashboard.html";
+      if (!email || !password) {
+        error.innerText = "Email dan password wajib diisi";
+        return;
+      }
 
-  } catch (e) {
-    error.innerText = "Email atau password salah";
-  }
-};
-</script>
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+
+        console.log("LOGIN UID:", cred.user.uid);
+
+        const userRef = doc(db, "users", cred.user.uid);
+        const userSnap = await getDoc(userRef);
+
+        console.log("USER EXISTS:", userSnap.exists());
+        console.log("USER DATA:", userSnap.data());
+
+        if (!userSnap.exists()) {
+          error.innerText = "User tidak terdaftar sebagai HR";
+          return;
+        }
+
+        if (userSnap.data().role !== "hr") {
+          error.innerText = "Akses ditolak (bukan HR)";
+          return;
+        }
+
+        // ✅ LOGIN BERHASIL
+        window.location.href = "dashboard.html";
+
+      } catch (err) {
+        console.error(err);
+        error.innerText = err.message;
+      }
+    };
+  </script>
 
 </body>
 </html>
