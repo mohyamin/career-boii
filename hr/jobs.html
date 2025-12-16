@@ -1,1 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Lowongan – HR Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin:0; padding:0; font-family:'Inter',sans-serif }
+    body { background:#f3f4f6; padding:30px }
+
+    h1 { margin-bottom:20px }
+
+    .btn {
+      background:#2563eb; color:#fff; border:none;
+      padding:10px 16px; border-radius:10px;
+      cursor:pointer; font-size:.85rem
+    }
+
+    .btn.danger { background:#ef4444 }
+    .btn.secondary { background:#64748b }
+
+    table {
+      width:100%; border-collapse:collapse;
+      background:#fff; border-radius:16px;
+      overflow:hidden; box-shadow:0 10px 20px rgba(0,0,0,.08)
+    }
+
+    th,td { padding:14px; border-bottom:1px solid #e5e7eb; text-align:left }
+    th { font-size:.85rem; color:#6b7280 }
+    td { font-size:.9rem }
+
+    /* MODAL */
+    .modal {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.4);
+      justify-content:center; align-items:center
+    }
+
+    .modal-content {
+      background:#fff; padding:24px;
+      border-radius:16px; width:420px
+    }
+
+    .modal-content h3 { margin-bottom:16px }
+
+    input, textarea, select {
+      width:100%; padding:10px;
+      margin-bottom:12px;
+      border-radius:8px;
+      border:1px solid #ddd
+    }
+  </style>
+</head>
+<body>
+
+<h1>Lowongan Kerja</h1>
+<button class="btn" onclick="openModal()">+ Tambah Lowongan</button>
+
+<br><br>
+
+<table>
+  <thead>
+    <tr>
+      <th>Posisi</th>
+      <th>Lokasi</th>
+      <th>Tipe</th>
+      <th>Status</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody id="jobsTable"></tbody>
+</table>
+
+<!-- MODAL -->
+<div class="modal" id="jobModal">
+  <div class="modal-content">
+    <h3 id="modalTitle">Tambah Lowongan</h3>
+
+    <input type="text" id="title" placeholder="Judul Lowongan">
+    <input type="text" id="location" placeholder="Lokasi">
+    <select id="type">
+      <option value="Full Time">Full Time</option>
+      <option value="Part Time">Part Time</option>
+      <option value="Internship">Internship</option>
+    </select>
+    <select id="status">
+      <option value="open">Open</option>
+      <option value="closed">Closed</option>
+    </select>
+    <textarea id="description" placeholder="Deskripsi"></textarea>
+
+    <button class="btn" onclick="saveJob()">Simpan</button>
+    <button class="btn secondary" onclick="closeModal()">Batal</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
+  authDomain: "career-portal-ace63.firebaseapp.com",
+  projectId: "career-portal-ace63",
+  storageBucket: "career-portal-ace63.firebasestorage.app",
+  messagingSenderId: "226436857978",
+  appId: "1:226436857978:web:4e38e13677ae8e92a1bbc3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let editId = null;
+
+/* LOAD */
+async function loadJobs() {
+  const table = document.getElementById("jobsTable");
+  table.innerHTML = "";
+
+  const snap = await getDocs(collection(db, "jobs"));
+  snap.forEach(d => {
+    const j = d.data();
+    table.innerHTML += `
+      <tr>
+        <td>${j.title}</td>
+        <td>${j.location}</td>
+        <td>${j.type}</td>
+        <td>${j.status}</td>
+        <td>
+          <button class="btn secondary" onclick="editJob('${d.id}')">Edit</button>
+          <button class="btn danger" onclick="deleteJob('${d.id}')">Hapus</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+window.openModal = () => {
+  editId = null;
+  modalTitle.innerText = "Tambah Lowongan";
+  jobModal.style.display = "flex";
+};
+
+window.closeModal = () => jobModal.style.display = "none";
+
+/* SAVE */
+window.saveJob = async () => {
+  const data = {
+    title: title.value,
+    location: location.value,
+    type: type.value,
+    status: status.value,
+    description: description.value,
+    createdAt: serverTimestamp()
+  };
+
+  if (editId) {
+    await updateDoc(doc(db, "jobs", editId), data);
+  } else {
+    await addDoc(collection(db, "jobs"), data);
+  }
+
+  closeModal();
+  loadJobs();
+};
+
+/* EDIT */
+window.editJob = async (id) => {
+  const snap = await getDocs(collection(db, "jobs"));
+  snap.forEach(d => {
+    if (d.id === id) {
+      const j = d.data();
+      title.value = j.title;
+      location.value = j.location;
+      type.value = j.type;
+      status.value = j.status;
+      description.value = j.description;
+      editId = id;
+      modalTitle.innerText = "Edit Lowongan";
+      jobModal.style.display = "flex";
+    }
+  });
+};
+
+/* DELETE */
+window.deleteJob = async (id) => {
+  if (confirm("Hapus lowongan ini?")) {
+    await deleteDoc(doc(db, "jobs", id));
+    loadJobs();
+  }
+};
+
+loadJobs();
+</script>
+
+</body>
+</html>
 
