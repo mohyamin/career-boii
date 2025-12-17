@@ -17,7 +17,6 @@
       color: #111827;
     }
 
-    /* SIDEBAR */
     .sidebar {
       width: 240px;
       background: #0f172a;
@@ -25,21 +24,18 @@
       padding: 24px;
       min-height: 100vh;
     }
-    .sidebar h2 {
-      font-size: 1.4rem;
-      margin-bottom: 30px;
-    }
+    .sidebar h2 { margin-bottom: 30px; }
+
     .menu a, .menu button {
       display: block;
       width: 100%;
-      text-align: left;
       background: none;
       border: none;
       color: #cbd5f5;
-      text-decoration: none;
       padding: 12px;
       border-radius: 10px;
       margin-bottom: 6px;
+      text-align: left;
       cursor: pointer;
       font-size: .95rem;
     }
@@ -48,11 +44,9 @@
       color: #fff;
     }
 
-    /* MAIN */
     .main {
       flex: 1;
       padding: 30px;
-      min-height: 100vh;
     }
 
     .card {
@@ -63,18 +57,13 @@
       margin-bottom: 24px;
     }
 
-    h3 { margin-bottom: 16px; }
-
     input, select, textarea {
       width: 100%;
       padding: 12px;
       margin-bottom: 12px;
       border-radius: 8px;
       border: 1px solid #d1d5db;
-      font-size: .9rem;
     }
-
-    textarea { resize: vertical; }
 
     .btn {
       padding: 10px 16px;
@@ -83,7 +72,6 @@
       background: #2563eb;
       color: #fff;
       cursor: pointer;
-      font-size: .9rem;
     }
     .btn:hover { background: #1e40af; }
 
@@ -94,19 +82,10 @@
     th, td {
       padding: 14px;
       border-bottom: 1px solid #e5e7eb;
-      font-size: .9rem;
       text-align: left;
-    }
-    th {
-      color: #6b7280;
-      font-size: .8rem;
+      font-size: .9rem;
     }
 
-    .actions button {
-      margin-right: 6px;
-      font-size: .75rem;
-      padding: 6px 10px;
-    }
     .danger {
       background: #dc2626;
     }
@@ -117,7 +96,6 @@
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
   <h2>HR Panel</h2>
   <div class="menu">
@@ -127,10 +105,8 @@
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
-  <!-- FORM -->
   <div class="card">
     <h3>Tambah Lowongan</h3>
 
@@ -150,10 +126,8 @@
     </form>
   </div>
 
-  <!-- TABLE -->
   <div class="card">
     <h3>Daftar Lowongan</h3>
-
     <table>
       <thead>
         <tr>
@@ -169,7 +143,6 @@
 
 </div>
 
-<!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -199,6 +172,11 @@
   const jobForm = document.getElementById("jobForm");
   const jobsTable = document.getElementById("jobsTable");
 
+  const titleInput = document.getElementById("title");
+  const locationInput = document.getElementById("location");
+  const typeInput = document.getElementById("type");
+  const descInput = document.getElementById("description");
+
   async function loadJobs() {
     jobsTable.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
 
@@ -212,7 +190,7 @@
           <td>${j.title}</td>
           <td>${j.location}</td>
           <td>${j.type}</td>
-          <td class="actions">
+          <td>
             <button class="btn danger" onclick="deleteJob('${d.id}')">Hapus</button>
           </td>
         </tr>
@@ -220,20 +198,25 @@
     });
   }
 
-  jobForm.onsubmit = async (e) => {
+  jobForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    if (!titleInput.value || !locationInput.value) {
+      alert("Judul & lokasi wajib diisi");
+      return;
+    }
+
     await addDoc(collection(db, "jobs"), {
-      title: title.value,
-      location: location.value,
-      type: type.value,
-      description: description.value || "",
+      title: titleInput.value.trim(),
+      location: locationInput.value.trim(),
+      type: typeInput.value,
+      description: descInput.value.trim(),
       createdAt: serverTimestamp()
     });
 
     jobForm.reset();
     loadJobs();
-  };
+  });
 
   window.deleteJob = async (id) => {
     if (confirm("Hapus lowongan ini?")) {
