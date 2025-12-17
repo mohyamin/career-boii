@@ -57,9 +57,16 @@ th{font-size:.8rem;color:#6b7280}
 }
 .modal.active{display:flex}
 .modal-box{
-  background:#fff;border-radius:16px;padding:24px;
-  width:100%;max-width:500px
+  background:#fff;
+  border-radius:16px;
+  padding:24px;
+  width:100%;
+  max-width:500px;
+
+  max-height:80vh;      /* 🔥 BATAS TINGGI MODAL */
+  overflow-y:auto;      /* 🔥 SCROLL VERTIKAL */
 }
+
 .modal-header{
   display:flex;justify-content:space-between;align-items:center;margin-bottom:12px
 }
