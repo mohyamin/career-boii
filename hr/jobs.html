@@ -12,9 +12,7 @@
 body{display:flex;background:#f3f4f6;color:#111827;min-height:100vh}
 
 /* SIDEBAR */
-.sidebar{
-  width:240px;background:#0f172a;color:#fff;padding:24px
-}
+.sidebar{width:240px;background:#0f172a;color:#fff;padding:24px}
 .sidebar h2{margin-bottom:30px}
 .menu a,.menu button{
   display:block;width:100%;background:none;border:none;
@@ -40,7 +38,7 @@ input,select,textarea{
 
 .btn{
   padding:10px 16px;border-radius:10px;border:none;
-  background:#2563eb;color:#fff;cursor:pointer
+  background:#2563eb;color:#fff;cursor:pointer;margin-right:6px
 }
 .btn:hover{background:#1e40af}
 .btn.secondary{background:#64748b}
@@ -124,7 +122,7 @@ th{font-size:.8rem;color:#6b7280}
   <div class="modal-box">
     <div class="modal-header">
       <h3 id="detailTitle"></h3>
-      <button class="close" onclick="closeDetail()">×</button>
+      <button class="close" onclick="detailModal.classList.remove('active')">×</button>
     </div>
     <p id="detailDesc"></p>
   </div>
@@ -135,7 +133,7 @@ th{font-size:.8rem;color:#6b7280}
   <div class="modal-box">
     <div class="modal-header">
       <h3>Edit Lowongan</h3>
-      <button class="close" onclick="closeEdit()">×</button>
+      <button class="close" onclick="editModal.classList.remove('active')">×</button>
     </div>
 
     <input id="editTitle">
@@ -146,7 +144,7 @@ th{font-size:.8rem;color:#6b7280}
       <option>Contract</option>
     </select>
     <textarea id="editDesc"></textarea>
-    <button class="btn" onclick="saveEdit()">Simpan Perubahan</button>
+    <button class="btn" id="saveEdit">Simpan Perubahan</button>
   </div>
 </div>
 
@@ -158,6 +156,7 @@ import {
   deleteDoc, doc, updateDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
   authDomain: "career-portal-ace63.firebaseapp.com",
@@ -171,98 +170,105 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+/* ELEMENT */
 const jobForm = document.getElementById("jobForm");
 const jobsTable = document.getElementById("jobsTable");
-let editId=null;
+const saveEditBtn = document.getElementById("saveEdit");
 
-/* LOAD */
+let editId = null;
+
+/* LOAD JOBS */
 async function loadJobs(){
-  jobsTable.innerHTML="<tr><td colspan='5'>Loading...</td></tr>";
-  const snap=await getDocs(collection(db,"jobs"));
-  jobsTable.innerHTML="";
+  jobsTable.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
+  const snap = await getDocs(collection(db,"jobs"));
+  jobsTable.innerHTML = "";
+
   snap.forEach(d=>{
-    const j=d.data();
-    jobsTable.innerHTML+=`
-    <tr>
+    const j = d.data();
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
       <td>${j.title}</td>
       <td>${j.location}</td>
       <td>${j.type}</td>
-      <td>
-        <button class="btn secondary"
-          onclick="showDetail('${j.title}','${(j.description||'').replace(/'/g,'')}')">
-          Lihat
-        </button>
-      </td>
-      <td>
-        <button class="btn"
-          onclick="openEdit('${d.id}','${j.title}','${j.location}','${j.type}','${(j.description||'').replace(/'/g,'')}')">
-          Edit
-        </button>
-        <button class="btn danger" onclick="deleteJob('${d.id}')">Hapus</button>
-      </td>
-    </tr>`;
+      <td></td>
+      <td></td>
+    `;
+
+    /* DETAIL */
+    const detailBtn = document.createElement("button");
+    detailBtn.className = "btn secondary";
+    detailBtn.innerText = "Lihat";
+    detailBtn.onclick = ()=>{
+      detailTitle.innerText = j.title;
+      detailDesc.innerText = j.description || "Tidak ada deskripsi";
+      detailModal.classList.add("active");
+    };
+
+    /* EDIT */
+    const editBtn = document.createElement("button");
+    editBtn.className = "btn";
+    editBtn.innerText = "Edit";
+    editBtn.onclick = ()=>{
+      editId = d.id;
+      editTitle.value = j.title;
+      editLocation.value = j.location;
+      editType.value = j.type;
+      editDesc.value = j.description || "";
+      editModal.classList.add("active");
+    };
+
+    /* DELETE */
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn danger";
+    delBtn.innerText = "Hapus";
+    delBtn.onclick = async ()=>{
+      if(confirm("Hapus lowongan ini?")){
+        await deleteDoc(doc(db,"jobs",d.id));
+        loadJobs();
+      }
+    };
+
+    tr.children[3].appendChild(detailBtn);
+    tr.children[4].append(editBtn, delBtn);
+    jobsTable.appendChild(tr);
   });
 }
 
 /* ADD */
-jobForm.onsubmit=async e=>{
+jobForm.onsubmit = async e=>{
   e.preventDefault();
   await addDoc(collection(db,"jobs"),{
-    title:title.value,
-    location:location.value,
-    type:type.value,
-    description:description.value||"",
-    createdAt:serverTimestamp()
+    title: title.value,
+    location: location.value,
+    type: type.value,
+    description: description.value || "",
+    createdAt: serverTimestamp()
   });
   jobForm.reset();
   loadJobs();
 };
 
-/* DELETE */
-window.deleteJob=async id=>{
-  if(confirm("Hapus lowongan ini?")){
-    await deleteDoc(doc(db,"jobs",id));
-    loadJobs();
-  }
-};
-
-/* DETAIL */
-window.showDetail=(t,d)=>{
-  detailTitle.innerText=t;
-  detailDesc.innerText=d||"Tidak ada deskripsi";
-  detailModal.classList.add("active");
-};
-window.closeDetail=()=>detailModal.classList.remove("active");
-
-/* EDIT */
-window.openEdit=(id,t,l,ty,d)=>{
-  editId=id;
-  editTitle.value=t;
-  editLocation.value=l;
-  editType.value=ty;
-  editDesc.value=d;
-  editModal.classList.add("active");
-};
-window.closeEdit=()=>editModal.classList.remove("active");
-
-window.saveEdit=async()=>{
+/* SAVE EDIT */
+saveEditBtn.onclick = async ()=>{
   await updateDoc(doc(db,"jobs",editId),{
-    title:editTitle.value,
-    location:editLocation.value,
-    type:editType.value,
-    description:editDesc.value
+    title: editTitle.value,
+    location: editLocation.value,
+    type: editType.value,
+    description: editDesc.value
   });
-  closeEdit();
+  editModal.classList.remove("active");
   loadJobs();
 };
 
 /* LOGOUT */
-logoutBtn.onclick=async()=>{
+logoutBtn.onclick = async ()=>{
   await signOut(auth);
-  location.href="login.html";
+  location.href = "login.html";
 };
 
 loadJobs();
 </script>
+
 </body>
 </html>
