@@ -2,279 +2,59 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>HR Panel – Lowongan</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
+<title>Karir</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif}
-body{display:flex;background:#f3f4f6;color:#111827;min-height:100vh}
-
-/* SIDEBAR */
-.sidebar{width:240px;background:#0f172a;color:#fff;padding:24px}
-.sidebar h2{margin-bottom:30px}
-.menu a,.menu button{
-  display:block;width:100%;background:none;border:none;
-  color:#cbd5f5;text-decoration:none;padding:12px;
-  border-radius:10px;margin-bottom:6px;cursor:pointer;text-align:left
-}
-.menu a.active,.menu a:hover,.menu button:hover{
-  background:#1e293b;color:#fff
-}
-
-/* MAIN */
-.main{flex:1;padding:30px}
+body{font-family:Inter;background:#f3f4f6}
+.container{max-width:900px;margin:40px auto;padding:20px}
 .card{
-  background:#fff;border-radius:16px;padding:24px;
-  box-shadow:0 10px 20px rgba(0,0,0,.08);margin-bottom:24px
+  background:#fff;padding:20px;border-radius:14px;
+  margin-bottom:16px;box-shadow:0 10px 20px rgba(0,0,0,.05)
 }
-h3{margin-bottom:16px}
-
-input,select,textarea{
-  width:100%;padding:12px;margin-bottom:12px;
-  border-radius:8px;border:1px solid #d1d5db
-}
-
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;
+  background:#e0e7ff;color:#3730a3;font-size:.8rem}
 .btn{
-  padding:10px 16px;border-radius:10px;border:none;
-  background:#2563eb;color:#fff;cursor:pointer;margin-right:6px
+  display:inline-block;margin-top:12px;
+  background:#2563eb;color:#fff;
+  padding:10px 14px;border-radius:8px;
+  text-decoration:none
 }
-.btn:hover{background:#1e40af}
-.btn.secondary{background:#64748b}
-.btn.secondary:hover{background:#475569}
-.btn.danger{background:#dc2626}
-.btn.danger:hover{background:#991b1b}
-
-table{width:100%;border-collapse:collapse}
-th,td{padding:14px;border-bottom:1px solid #e5e7eb;text-align:left}
-th{font-size:.8rem;color:#6b7280}
-
-/* MODAL */
-.modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.5);
-  display:none;align-items:center;justify-content:center;z-index:50
-}
-.modal.active{display:flex}
-.modal-box{
-  background:#fff;
-  border-radius:16px;
-  padding:24px;
-  width:100%;
-  max-width:500px;
-
-  max-height:80vh;      /* 🔥 BATAS TINGGI MODAL */
-  overflow-y:auto;      /* 🔥 SCROLL VERTIKAL */
-}
-
-.modal-header{
-  display:flex;justify-content:space-between;align-items:center;margin-bottom:12px
-}
-.close{border:none;background:none;font-size:1.5rem;cursor:pointer}
 </style>
 </head>
-
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <h2>HR Panel</h2>
-  <div class="menu">
-    <a href="dashboard.html">Dashboard</a>
-    <a class="active">Lowongan</a>
-    <button id="logoutBtn">Logout</button>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-
-<!-- FORM -->
-<div class="card">
-<h3>Tambah Lowongan</h3>
-<form id="jobForm">
-  <input id="title" placeholder="Judul Lowongan" required>
-  <input id="location" placeholder="Lokasi" required>
-  <select id="type">
-    <option>Full Time</option>
-    <option>Part Time</option>
-    <option>Contract</option>
-  </select>
-  <textarea id="description" placeholder="Deskripsi"></textarea>
-  <button class="btn">Simpan</button>
-</form>
-</div>
-
-<!-- TABLE -->
-<div class="card">
-<h3>Daftar Lowongan</h3>
-<table>
-<thead>
-<tr>
-  <th>Judul</th>
-  <th>Lokasi</th>
-  <th>Tipe</th>
-  <th>Deskripsi</th>
-  <th>Aksi</th>
-</tr>
-</thead>
-<tbody id="jobsTable"></tbody>
-</table>
-</div>
-
-</div>
-
-<!-- MODAL DETAIL -->
-<div class="modal" id="detailModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3 id="detailTitle"></h3>
-      <button class="close" onclick="detailModal.classList.remove('active')">×</button>
-    </div>
-    <p id="detailDesc"></p>
-  </div>
-</div>
-
-<!-- MODAL EDIT -->
-<div class="modal" id="editModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h3>Edit Lowongan</h3>
-      <button class="close" onclick="editModal.classList.remove('active')">×</button>
-    </div>
-
-    <input id="editTitle">
-    <input id="editLocation">
-    <select id="editType">
-      <option>Full Time</option>
-      <option>Part Time</option>
-      <option>Contract</option>
-    </select>
-    <textarea id="editDesc"></textarea>
-    <button class="btn" id="saveEdit">Simpan Perubahan</button>
-  </div>
+<div class="container">
+<h1>Lowongan Tersedia</h1>
+<div id="jobs"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getFirestore, collection, addDoc, getDocs,
-  deleteDoc, doc, updateDoc, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
-  authDomain: "career-portal-ace63.firebaseapp.com",
-  projectId: "career-portal-ace63",
-  storageBucket: "career-portal-ace63.firebasestorage.app",
-  messagingSenderId: "226436857978",
-  appId: "1:226436857978:web:4e38e13677ae8e92a1bbc3"
+  projectId: "career-portal-ace63"
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ELEMENT */
-const jobForm = document.getElementById("jobForm");
-const jobsTable = document.getElementById("jobsTable");
-const saveEditBtn = document.getElementById("saveEdit");
+const wrap = document.getElementById("jobs");
 
-let editId = null;
-
-/* LOAD JOBS */
-async function loadJobs(){
-  jobsTable.innerHTML = "<tr><td colspan='5'>Loading...</td></tr>";
-  const snap = await getDocs(collection(db,"jobs"));
-  jobsTable.innerHTML = "";
-
-  snap.forEach(d=>{
-    const j = d.data();
-    const tr = document.createElement("tr");
-
-    tr.innerHTML = `
-      <td>${j.title}</td>
-      <td>${j.location}</td>
-      <td>${j.type}</td>
-      <td></td>
-      <td></td>
-    `;
-
-    /* DETAIL */
-    const detailBtn = document.createElement("button");
-    detailBtn.className = "btn secondary";
-    detailBtn.innerText = "Lihat";
-    detailBtn.onclick = ()=>{
-      detailTitle.innerText = j.title;
-      detailDesc.innerText = j.description || "Tidak ada deskripsi";
-      detailModal.classList.add("active");
-    };
-
-    /* EDIT */
-    const editBtn = document.createElement("button");
-    editBtn.className = "btn";
-    editBtn.innerText = "Edit";
-    editBtn.onclick = ()=>{
-      editId = d.id;
-      editTitle.value = j.title;
-      editLocation.value = j.location;
-      editType.value = j.type;
-      editDesc.value = j.description || "";
-      editModal.classList.add("active");
-    };
-
-    /* DELETE */
-    const delBtn = document.createElement("button");
-    delBtn.className = "btn danger";
-    delBtn.innerText = "Hapus";
-    delBtn.onclick = async ()=>{
-      if(confirm("Hapus lowongan ini?")){
-        await deleteDoc(doc(db,"jobs",d.id));
-        loadJobs();
-      }
-    };
-
-    tr.children[3].appendChild(detailBtn);
-    tr.children[4].append(editBtn, delBtn);
-    jobsTable.appendChild(tr);
-  });
-}
-
-/* ADD */
-jobForm.onsubmit = async e=>{
-  e.preventDefault();
-  await addDoc(collection(db,"jobs"),{
-    title: title.value,
-    location: location.value,
-    type: type.value,
-    description: description.value || "",
-    createdAt: serverTimestamp()
-  });
-  jobForm.reset();
-  loadJobs();
-};
-
-/* SAVE EDIT */
-saveEditBtn.onclick = async ()=>{
-  await updateDoc(doc(db,"jobs",editId),{
-    title: editTitle.value,
-    location: editLocation.value,
-    type: editType.value,
-    description: editDesc.value
-  });
-  editModal.classList.remove("active");
-  loadJobs();
-};
-
-/* LOGOUT */
-logoutBtn.onclick = async ()=>{
-  await signOut(auth);
-  location.href = "login.html";
-};
-
-loadJobs();
+const snap = await getDocs(collection(db,"jobs"));
+snap.forEach(d=>{
+  const j = d.data();
+  wrap.innerHTML += `
+    <div class="card">
+      <h3>${j.title}</h3>
+      <p>${j.location}</p>
+      <span class="badge">${j.type}</span><br>
+      <a class="btn" href="job.html?id=${d.id}">Lihat Detail</a>
+    </div>
+  `;
+});
 </script>
 
 </body>
