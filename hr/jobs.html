@@ -1,166 +1,253 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lowongan</title>
+  <meta charset="UTF-8">
+  <title>HR Panel – Lowongan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-<style>
-*{box-sizing:border-box;font-family:Inter}
-body{margin:0;display:flex;background:#f3f4f6}
-.sidebar{width:230px;background:#0f172a;color:#fff;padding:20px}
-.sidebar h2{margin-bottom:20px}
-.sidebar a, .sidebar button{
-  display:block;width:100%;
-  padding:10px;border-radius:8px;
-  background:none;border:none;
-  color:#cbd5f5;text-align:left;
-  cursor:pointer;margin-bottom:6px
-}
-.sidebar a:hover,.sidebar button:hover{background:#1e293b;color:#fff}
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    html, body { height: 100%; }
 
-.main{flex:1;padding:30px}
-.card{background:#fff;padding:20px;border-radius:14px;
-box-shadow:0 10px 20px rgba(0,0,0,.08);margin-bottom:25px}
+    body {
+      display: flex;
+      background: #f3f4f6;
+      color: #111827;
+    }
 
-input,textarea,select{
-  width:100%;padding:10px;margin-bottom:10px;
-  border-radius:8px;border:1px solid #ddd
-}
-button.btn{background:#2563eb;color:#fff;border:none;
-padding:10px 14px;border-radius:8px;cursor:pointer}
-button.btn.danger{background:#dc2626}
+    /* SIDEBAR */
+    .sidebar {
+      width: 240px;
+      background: #0f172a;
+      color: #fff;
+      padding: 24px;
+      min-height: 100vh;
+    }
+    .sidebar h2 {
+      font-size: 1.4rem;
+      margin-bottom: 30px;
+    }
+    .menu a, .menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      color: #cbd5f5;
+      text-decoration: none;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      font-size: .95rem;
+    }
+    .menu a.active, .menu a:hover, .menu button:hover {
+      background: #1e293b;
+      color: #fff;
+    }
 
-table{width:100%;border-collapse:collapse}
-th,td{padding:12px;border-bottom:1px solid #e5e7eb;text-align:left}
-th{color:#6b7280;font-size:.85rem}
-</style>
+    /* MAIN */
+    .main {
+      flex: 1;
+      padding: 30px;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.08);
+      margin-bottom: 24px;
+    }
+
+    h3 { margin-bottom: 16px; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: .9rem;
+    }
+
+    textarea { resize: vertical; }
+
+    .btn {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+      font-size: .9rem;
+    }
+    .btn:hover { background: #1e40af; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 14px;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: .9rem;
+      text-align: left;
+    }
+    th {
+      color: #6b7280;
+      font-size: .8rem;
+    }
+
+    .actions button {
+      margin-right: 6px;
+      font-size: .75rem;
+      padding: 6px 10px;
+    }
+    .danger {
+      background: #dc2626;
+    }
+    .danger:hover {
+      background: #991b1b;
+    }
+  </style>
 </head>
 <body>
 
 <!-- SIDEBAR -->
 <div class="sidebar">
   <h2>HR Panel</h2>
-  <a href="dashboard.html">Dashboard</a>
-  <a style="background:#1e293b;color:#fff">Lowongan</a>
-  <button id="logoutBtn">Logout</button>
+  <div class="menu">
+    <a href="dashboard.html">Dashboard</a>
+    <a class="active">Lowongan</a>
+    <button id="logoutBtn">Logout</button>
+  </div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-<div class="card">
-<h3>Tambah Lowongan</h3>
-<form id="jobForm">
-  <input id="title" placeholder="Judul Lowongan" required>
-  <input id="location" placeholder="Lokasi" required>
-  <select id="type">
-    <option>Full Time</option>
-    <option>Part Time</option>
-    <option>Contract</option>
-  </select>
-  <textarea id="description" placeholder="Deskripsi"></textarea>
-  <button class="btn">Simpan</button>
-</form>
+  <!-- FORM -->
+  <div class="card">
+    <h3>Tambah Lowongan</h3>
+
+    <form id="jobForm">
+      <input id="title" placeholder="Judul Lowongan" required>
+      <input id="location" placeholder="Lokasi" required>
+
+      <select id="type">
+        <option value="Full Time">Full Time</option>
+        <option value="Part Time">Part Time</option>
+        <option value="Contract">Contract</option>
+      </select>
+
+      <textarea id="description" placeholder="Deskripsi"></textarea>
+
+      <button type="submit" class="btn">Simpan</button>
+    </form>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card">
+    <h3>Daftar Lowongan</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Judul</th>
+          <th>Lokasi</th>
+          <th>Tipe</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="jobsTable"></tbody>
+    </table>
+  </div>
+
 </div>
 
-<div class="card">
-<h3>Daftar Lowongan</h3>
-<table>
-<thead>
-<tr>
-  <th>Judul</th>
-  <th>Lokasi</th>
-  <th>Tipe</th>
-  <th>Aksi</th>
-</tr>
-</thead>
-<tbody id="jobsTable">
-<tr><td colspan="4">Loading...</td></tr>
-</tbody>
-</table>
-</div>
-
-</div>
-
-<!-- 🔥 FIREBASE + AUTH (SATU KALI SAJA) -->
+<!-- FIREBASE -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, serverTimestamp } 
-from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc,
+    serverTimestamp
+  } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
-  authDomain: "career-portal-ace63.firebaseapp.com",
-  projectId: "career-portal-ace63",
-  storageBucket: "career-portal-ace63.firebasestorage.app",
-  messagingSenderId: "226436857978",
-  appId: "1:226436857978:web:4e38e13677ae8e92a1bbc3"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
+    authDomain: "career-portal-ace63.firebaseapp.com",
+    projectId: "career-portal-ace63",
+    storageBucket: "career-portal-ace63.firebasestorage.app",
+    messagingSenderId: "226436857978",
+    appId: "1:226436857978:web:4e38e13677ae8e92a1bbc3"
+  };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-/* 🔐 AUTH GUARD */
-onAuthStateChanged(auth, async (user) => {
-  if (!user) return location.href="login.html";
-  const snap = await getDoc(doc(db,"users",user.uid));
-  if (!snap.exists() || snap.data().role!=="hr")
-    location.href="login.html";
-});
+  const jobForm = document.getElementById("jobForm");
+  const jobsTable = document.getElementById("jobsTable");
 
-/* 🚪 LOGOUT */
-logoutBtn.onclick = async()=>{
-  await signOut(auth);
-  location.href="login.html";
-};
+  async function loadJobs() {
+    jobsTable.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
 
-/* ➕ CREATE */
-jobForm.onsubmit = async(e)=>{
-  e.preventDefault();
-  await addDoc(collection(db,"jobs"),{
-    title:title.value,
-    location:location.value,
-    type:type.value,
-    description:description.value,
-    createdAt:serverTimestamp()
-  });
-  e.target.reset();
-  loadJobs();
-};
+    const snap = await getDocs(collection(db, "jobs"));
+    jobsTable.innerHTML = "";
 
-/* 📄 READ */
-async function loadJobs(){
-  jobsTable.innerHTML="<tr><td colspan='4'>Loading...</td></tr>";
-  const snap = await getDocs(collection(db,"jobs"));
-  jobsTable.innerHTML="";
-  snap.forEach(d=>{
-    const j=d.data();
-    jobsTable.innerHTML+=`
-    <tr>
-      <td>${j.title}</td>
-      <td>${j.location}</td>
-      <td>${j.type}</td>
-      <td>
-        <button class="btn danger" onclick="del('${d.id}')">Hapus</button>
-      </td>
-    </tr>`;
-  });
-}
-
-/* 🗑 DELETE */
-window.del = async(id)=>{
-  if(confirm("Hapus lowongan?")){
-    await deleteDoc(doc(db,"jobs",id));
-    loadJobs();
+    snap.forEach(d => {
+      const j = d.data();
+      jobsTable.innerHTML += `
+        <tr>
+          <td>${j.title}</td>
+          <td>${j.location}</td>
+          <td>${j.type}</td>
+          <td class="actions">
+            <button class="btn danger" onclick="deleteJob('${d.id}')">Hapus</button>
+          </td>
+        </tr>
+      `;
+    });
   }
-};
 
-loadJobs();
+  jobForm.onsubmit = async (e) => {
+    e.preventDefault();
+
+    await addDoc(collection(db, "jobs"), {
+      title: title.value,
+      location: location.value,
+      type: type.value,
+      description: description.value || "",
+      createdAt: serverTimestamp()
+    });
+
+    jobForm.reset();
+    loadJobs();
+  };
+
+  window.deleteJob = async (id) => {
+    if (confirm("Hapus lowongan ini?")) {
+      await deleteDoc(doc(db, "jobs", id));
+      loadJobs();
+    }
+  };
+
+  document.getElementById("logoutBtn").onclick = async () => {
+    await signOut(auth);
+    window.location.href = "login.html";
+  };
+
+  loadJobs();
 </script>
 
 </body>
