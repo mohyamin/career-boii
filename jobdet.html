@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Detail Lowongan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif}
+body{background:#f3f4f6;color:#111827;padding:40px}
+
+.container{
+  max-width:800px;
+  margin:auto;
+}
+
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:32px;
+  box-shadow:0 10px 20px rgba(0,0,0,.08)
+}
+
+.badge{
+  display:inline-block;
+  background:#e0e7ff;
+  color:#3730a3;
+  padding:6px 14px;
+  border-radius:999px;
+  font-size:.8rem;
+  margin-bottom:12px;
+}
+
+h1{margin-bottom:8px}
+.meta{
+  color:#6b7280;
+  margin-bottom:24px;
+}
+
+.section{
+  margin-bottom:24px;
+}
+.section h3{
+  margin-bottom:8px;
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+  margin-top:24px;
+}
+
+.btn{
+  padding:12px 18px;
+  border-radius:12px;
+  border:none;
+  text-decoration:none;
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+}
+.btn.secondary{
+  background:#64748b;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="card" id="jobCard">
+    <p>Loading...</p>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getFirestore, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+/* FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyCdi_d9l8azfwgeFoB8aF7RdUvgcaexQu0",
+  authDomain: "career-portal-ace63.firebaseapp.com",
+  projectId: "career-portal-ace63"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(location.search);
+const jobId = params.get("id");
+
+const jobCard = document.getElementById("jobCard");
+
+/* VALIDASI */
+if(!jobId){
+  jobCard.innerHTML = "<p>Lowongan tidak ditemukan.</p>";
+  throw new Error("Job ID missing");
+}
+
+/* LOAD JOB */
+const snap = await getDoc(doc(db,"jobs",jobId));
+
+if(!snap.exists()){
+  jobCard.innerHTML = "<p>Lowongan tidak tersedia.</p>";
+} else {
+  const j = snap.data();
+
+  jobCard.innerHTML = `
+    <span class="badge">${j.type}</span>
+    <h1>${j.title}</h1>
+    <p class="meta">📍 ${j.location}</p>
+
+    <div class="section">
+      <h3>Deskripsi Pekerjaan</h3>
+      <p>${(j.description || "Tidak ada deskripsi").replace(/\n/g,"<br>")}</p>
+    </div>
+
+    <div class="actions">
+      <a class="btn" href="apply.html?job=${jobId}">Lamar Sekarang</a>
+      <a class="btn secondary" href="jobs.html">Kembali</a>
+    </div>
+  `;
+}
+</script>
+
+</body>
+</html>
