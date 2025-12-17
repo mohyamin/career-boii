@@ -92,7 +92,7 @@ async function loadJobs(){
       <p><b>Lokasi:</b> ${j.location}</p>
       <p>${(j.description||"").substring(0,120)}...</p>
       <a class="btn" href="apply.html?job=${d.id}">Lamar</a>
-      <a class="btn secondary" href="job.html?id=${d.id}">Detail</a>
+      <a class="btn secondary" href="jobdet.html?id=${d.id}">Detail</a>
     `;
 
     list.appendChild(div);
